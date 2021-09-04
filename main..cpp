@@ -37,7 +37,10 @@ int pop (my_stack **stack1) {
     assert (*stack1 != nullptr);
 
     int value = (*stack1)->inf;
+    my_stack *tmp = *stack1;
     *stack1 = (*stack1)->pointer;
+    free (tmp);
+
     return value;
 }
 
@@ -59,7 +62,7 @@ int main (void) {
         print = print->pointer;
     }
 
-    printf ("%d\n",pop (&kek));
+    printf ("\n%d ",pop (&kek));
     printf ("%d",pop (&kek));
 
 }
