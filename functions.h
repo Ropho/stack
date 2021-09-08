@@ -6,7 +6,7 @@
 #include "assert.h"
 #include "TXLib.h"
 
-const size_t size = 2;
+const size_t size = 1;
 const size_t multyplier = 2;
 
 enum ERRORS {
@@ -27,9 +27,9 @@ typedef struct my_stack {
 
 
 
-my_stack *spawn_stack ();
+my_stack *spawn_stack (size_t size_array);
 
-void constructor (my_stack *head);
+void constructor (my_stack *head, size_t size_array);
 
 void delete_stack (my_stack **head);
 

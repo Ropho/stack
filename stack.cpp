@@ -1,22 +1,22 @@
 #include "functions.h"
 
-my_stack *spawn_stack () {
+my_stack *spawn_stack (size_t size_array) {
 
     my_stack *head = (my_stack*)malloc(sizeof (my_stack));
 
     if (head == nullptr)
         return nullptr;
 
-    constructor (head);
+    constructor (head ,size_array);
 
     return head;
 }
 
 
-void constructor (my_stack *head) {
+void constructor (my_stack *head, size_t size_array) {
 
     head->size_stack = 0;
-    head->size_array = size;
+    head->size_array = size_array;
     head->error = 0;
     head->arr = (int*)malloc(sizeof (int) * head->size_array);
 
@@ -55,7 +55,9 @@ void push (my_stack *head, int value) {
 
     if (head->size_stack > head->size_array) {
 
-        head->size_array = head->size_array * multyplier;
+        if (head->size_array != 0)
+             head->size_array = head->size_array * multyplier;
+        else head->size_array ++;
 
         head->arr = (int*)realloc (head->arr, sizeof (int) * head->size_array);
     }
@@ -94,7 +96,7 @@ int main (void) {
 
     my_stack *test;
 
-    test = spawn_stack();
+    test = spawn_stack (size);
 
     push (test, 2);
     push (test, 3);
@@ -103,7 +105,7 @@ int main (void) {
     //printf ("%d\n", test->size_array);
 
     //printf ("%d", *(test->arr + test->size_stack - 1));
-  /*  printf ("%d", pop(test));
+  /* printf ("%d", pop(test));
     printf ("%d", pop(test));
     printf ("%d", pop(test));
     printf ("%d", pop(test));
