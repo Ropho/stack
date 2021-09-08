@@ -1,55 +1,52 @@
-#include "stdio.h"
-#include "malloc.h"
-#include "assert.h"
-
-
-const size_t size = 2;
-const size_t multyplier = 2;
-
-enum ERRORS {
-
-    MEMMORY_ALLOCATION_ERROR = 1,
-    POP_EMPTY_STACK          = 666
-};
-
-
-typedef struct my_stack {
-
-    size_t size_array;
-    size_t size_stack;
-    int *arr;
-
-} my_stack;
-
-
+#include "functions.h"
 
 my_stack *spawn_stack () {
 
     my_stack *head = (my_stack*)malloc(sizeof (my_stack));
 
-    head->size_stack = 0;
-    head->size_array = size;
+    if (head == nullptr)
+        return nullptr;
 
-    head->arr = (int*)malloc(sizeof (int) * head->size_array);
+    constructor (head);
 
     return head;
 }
 
 
+void constructor (my_stack *head) {
 
-void delete_stack (my_stack *head) {
-
-    assert (head != nullptr);
-
-    free(head->arr);
-
-    head->arr = nullptr;
     head->size_stack = 0;
-    head->size_array = 0;
+    head->size_array = size;
+    head->error = 0;
+    head->arr = (int*)malloc(sizeof (int) * head->size_array);
 
+    if (head->arr == nullptr)
+        head->error = MEMMORY_ALLOCATION_ERROR;
 }
 
 
+void delete_stack (my_stack **head) {
+
+    assert (*head != nullptr);
+
+    destructor (*head);
+
+    free(*head);
+    *head = nullptr;
+
+}
+
+void destructor (my_stack *head) {
+
+    assert (head != nullptr);
+
+    free((head)->arr);
+
+    (head)->arr = nullptr;
+    (head)->size_stack = 0;
+    (head)->size_array = 0;
+
+}
 void push (my_stack *head, int value) {
 
     assert (head != nullptr);
@@ -72,8 +69,11 @@ int pop (my_stack *head) {
 
     assert (head != nullptr);
 
-    if (head->size_stack == 0)
-        return POP_EMPTY_STACK;
+    if (head->size_stack == 0)  {
+
+        head->error = POP_EMPTY_STACK;
+        return 0;
+    }
 
     int tmp = *(head->arr + head->size_stack - 1);
     *(head->arr + head->size_stack - 1) = 0;
@@ -116,7 +116,7 @@ int main (void) {
     printf ("\n%d", test->size_array);
     */
 
-    delete_stack (test);
+    delete_stack (&test);
 
     return 0;
 }
