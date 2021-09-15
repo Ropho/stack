@@ -1,0 +1,5 @@
+
+ARA ARA, why u pop empty stack? (ERROR : 666) 
+2 
+ARA ARA, size of stack was realloc'ed (ERROR : 2) 2 3 
+ARA ARA, size of stack was realloc'ed (ERROR : 2) 2 3 4 
