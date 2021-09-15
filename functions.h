@@ -4,24 +4,27 @@
 #include "stdio.h"
 #include "malloc.h"
 #include "assert.h"
-#include "TXLib.h"
 
-const size_t size = 1;
-const size_t multyplier = 2;
+const size_t SIZE_CONSTRUCTOR = 1;
+const size_t MULTIPLIER = 2;
+size_t EXIT       = 0;
+
 
 enum ERRORS {
 
+    NO_ERROR = 0,
     MEMMORY_ALLOCATION_ERROR = 1,
+    STACK_OVERFLOW = 2,
     POP_EMPTY_STACK          = 666
 };
 
 
 typedef struct my_stack {
 
-    size_t error;
+    int    error;
     size_t size_array;
     size_t size_stack;
-    int *arr;
+    int    *arr;
 
 } my_stack;
 
@@ -39,7 +42,8 @@ void push (my_stack *head, int value);
 
 int pop (my_stack *head);
 
+void verificator (my_stack *head, FILE *out);
 
-
+void dump (my_stack *head);
 
 #endif // FUNCTIONS_H_INCLUDED

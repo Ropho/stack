@@ -1,13 +1,54 @@
 #include "functions.h"
 
-my_stack *spawn_stack (size_t size_array) {
+void dump (my_stack *head) {
 
-    my_stack *head = (my_stack*)malloc(sizeof (my_stack));
+    assert (head != nullptr);
+
+    FILE *out = fopen ("DUMP", "a");
+
+    if (out == nullptr) {
+        assert (0);
+    }
+    
+    if (head->error != NO_ERROR) 
+        verificator (head, out);
+
+    for (int i = 0; i < head->size_stack; ++i)
+        fprintf (out, "%d ", *(head->arr + i));
+    fprintf (out, "\n");
+
+    
+    fclose (out);
+
+    return;
+}
+
+void verificator (my_stack *head, FILE *out) {
+
+    assert (head != nullptr);
+    assert (out  != nullptr);
+    
+    if (head->error == MEMMORY_ALLOCATION_ERROR) {
+
+        fprintf (out, "ARA ARA, memmory trouble (ERROR : %d)\n", head->error);
+        EXIT = 1;
+    }
+
+    else if (head->error == POP_EMPTY_STACK) 
+        fprintf (out, "ARA ARA, why u pop empty stack? (ERROR : %d) ", head->error);
+    
+    else if (head->error == STACK_OVERFLOW) 
+        fprintf (out, "ARA ARA, size of stack was realloc'ed (ERROR : %d) ", head->error);
+}
+
+    my_stack *spawn_stack (size_t size_array) {
+
+    my_stack *head = (my_stack*)calloc(1, sizeof (my_stack));
 
     if (head == nullptr)
-        return nullptr;
+        assert (0);
 
-    constructor (head ,size_array);
+    constructor (head, size_array);
 
     return head;
 }
@@ -15,13 +56,17 @@ my_stack *spawn_stack (size_t size_array) {
 
 void constructor (my_stack *head, size_t size_array) {
 
+    assert (head != nullptr);
+
     head->size_stack = 0;
     head->size_array = size_array;
     head->error = 0;
-    head->arr = (int*)malloc(sizeof (int) * head->size_array);
+    head->arr = (int*)calloc(head->size_array, sizeof (int));
 
     if (head->arr == nullptr)
         head->error = MEMMORY_ALLOCATION_ERROR;
+
+    dump (head);
 }
 
 
@@ -47,22 +92,30 @@ void destructor (my_stack *head) {
     (head)->size_array = 0;
 
 }
+
 void push (my_stack *head, int value) {
 
     assert (head != nullptr);
+    
+    if (head->error != NO_ERROR)
+        head->error = NO_ERROR;
 
     head->size_stack += 1;
 
     if (head->size_stack > head->size_array) {
 
+        head->error = STACK_OVERFLOW;
+
         if (head->size_array != 0)
-             head->size_array = head->size_array * multyplier;
+             head->size_array = head->size_array * MULTIPLIER;
         else head->size_array ++;
 
         head->arr = (int*)realloc (head->arr, sizeof (int) * head->size_array);
     }
 
     *(head->arr + head->size_stack - 1) = value;
+
+    dump (head);
 
 
 }
@@ -71,9 +124,15 @@ int pop (my_stack *head) {
 
     assert (head != nullptr);
 
+    if (head->error != NO_ERROR)
+        head->error = NO_ERROR;
+    
     if (head->size_stack == 0)  {
 
         head->error = POP_EMPTY_STACK;
+
+        dump (head);
+
         return 0;
     }
 
@@ -81,28 +140,39 @@ int pop (my_stack *head) {
     *(head->arr + head->size_stack - 1) = 0;
     --head->size_stack;
 
-    if (head->size_stack < head->size_array / multyplier) {     //уменьшение размера массива
+    if (head->size_stack < head->size_array / MULTIPLIER) {   
 
-            head->size_array /= multyplier;
+            head->size_array /= MULTIPLIER;
             head->arr = (int*)realloc (head->arr, sizeof (int) * head->size_array);
     }
-
-
+    
+    dump (head);
+    
     return tmp;
 }
 
-
 int main (void) {
+
+    FILE *out = fopen ("DUMP", "w");       //clearing the dump  file
+     fclose (out);
 
     my_stack *test;
 
-    test = spawn_stack (size);
+    test = spawn_stack (SIZE_CONSTRUCTOR);
+    
+    if (EXIT)
+        return 0;
+
+    pop (test);
 
     push (test, 2);
+
     push (test, 3);
-    push (test,4);
-    //printf ("%d ", test->size_stack);
-    //printf ("%d\n", test->size_array);
+
+    push (test, 4);
+
+   // printf ("%d ", test->size_stack);
+   // printf ("%d\n", test->size_array);
 
     //printf ("%d", *(test->arr + test->size_stack - 1));
   /* printf ("%d", pop(test));
@@ -119,6 +189,8 @@ int main (void) {
     */
 
     delete_stack (&test);
+    
+    printf ("OK");
 
     return 0;
 }
