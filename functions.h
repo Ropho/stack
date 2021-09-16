@@ -5,9 +5,9 @@
 #include "malloc.h"
 #include "assert.h"
 
-const size_t SIZE_CONSTRUCTOR = 1;
+const size_t SIZE_CONSTRUCTOR = -10;
 const size_t MULTIPLIER = 2;
-size_t EXIT       = 0;
+//size_t EXIT       = 0;
 
 
 enum ERRORS {
