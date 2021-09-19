@@ -5,9 +5,10 @@
 #include "malloc.h"
 #include "assert.h"
 
-const size_t SIZE_CONSTRUCTOR = -10;
+#define  ex_ver   {if (exit_cond) return 0;}
+
+const size_t SIZE_CONSTRUCTOR = 10;
 const size_t MULTIPLIER = 2;
-//size_t EXIT       = 0;
 
 
 enum ERRORS {
@@ -15,7 +16,7 @@ enum ERRORS {
     NO_ERROR = 0,
     MEMMORY_ALLOCATION_ERROR = 1,
     STACK_OVERFLOW = 2,
-    POP_EMPTY_STACK          = 666
+    STACK_UNDERFLOW = 3
 };
 
 
@@ -23,7 +24,7 @@ typedef struct my_stack {
 
     int    error;
     size_t size_array;
-    size_t size_stack;
+    int size_stack;
     int    *arr;
 
 } my_stack;
@@ -42,7 +43,7 @@ void push (my_stack *head, int value);
 
 int pop (my_stack *head);
 
-void verificator (my_stack *head, FILE *out);
+void verificator (my_stack *head);
 
 void dump (my_stack *head);
 

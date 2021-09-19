@@ -1,52 +1,76 @@
 #include "functions.h"
-    
-void dump (my_stack *head) {
 
+extern size_t exit_cond;
+
+void dump (my_stack *head) {
+    
     assert (head != nullptr);
 
     FILE *out = fopen ("DUMP", "a");
-
-    if (out == nullptr) {
-        assert (0);
-    }
-    
-    if (head->error != NO_ERROR) 
-        verificator (head, out);
-
-    for (int i = 0; i < head->size_stack; ++i)
-        fprintf (out, "%d ", *(head->arr + i));
-    fprintf (out, "\n");
-
-    
-    fclose (out);
-
-    return;
-}
-
-void verificator (my_stack *head, FILE *out) {
-
-    assert (head != nullptr);
-    assert (out  != nullptr);
     
     if (head->error == MEMMORY_ALLOCATION_ERROR) {
 
         fprintf (out, "ARA ARA, memmory trouble (ERROR : %d)\n", head->error);
-        //EXIT = 1;
+        fclose (out);
+        return;
     }
 
-    else if (head->error == POP_EMPTY_STACK) 
-        fprintf (out, "ARA ARA, why u pop empty stack? (ERROR : %d) ", head->error);
+    else if (head->error == STACK_UNDERFLOW) {
+        fprintf (out, "ARA ARA, STACK UNDERFLOW (ERROR : %d) ", head->error);
+        fclose (out);
+        return;
+    }
+
+    else if (head->error == STACK_OVERFLOW) {
+        fprintf (out, "ARA ARA, STACK OVERFLOW (ERROR : %d) ", head->error);
+        fclose (out);
+        return;
+    }
+
+    if (head->size_stack == 0)
+        fprintf (out, "Stack created\n");
+
+    else {
+
+    for (int i = 0; i < head->size_stack; ++i)
+        fprintf (out, "%d ", *(head->arr + i));
+    fprintf (out, "\n");
+    }
     
-    else if (head->error == STACK_OVERFLOW) 
-        fprintf (out, "ARA ARA, size of stack was realloc'ed (ERROR : %d) ", head->error);
+    fclose (out);
 }
 
-    my_stack *spawn_stack (size_t size_array) {
+void verificator (my_stack *head) {
+
+    assert (head != nullptr);
+    
+    if (head->arr == nullptr) {
+
+        head->error = MEMMORY_ALLOCATION_ERROR;
+        exit_cond = 1;
+        return;
+    }
+    else if (head->size_stack < 0) {
+
+        head->error = STACK_UNDERFLOW;
+        exit_cond = 1;
+        return;
+    }
+
+    else if (head->size_stack > head->size_array) {
+
+        head->error = STACK_OVERFLOW;
+        exit_cond = 1;
+        return;
+    }
+
+}
+
+
+
+my_stack *spawn_stack (size_t size_array) {
 
     my_stack *head = (my_stack*)calloc(1, sizeof (my_stack));
-
-    if (head == nullptr)
-        assert (0);
 
     constructor (head, size_array);
 
@@ -62,9 +86,8 @@ void constructor (my_stack *head, size_t size_array) {
     head->size_array = size_array;
     head->error = 0;
     head->arr = (int*)calloc(head->size_array, sizeof (int));
-
-    if (head->arr == nullptr)
-        head->error = MEMMORY_ALLOCATION_ERROR;
+    
+    verificator (head);
 
     dump (head);
 }
@@ -97,11 +120,10 @@ void push (my_stack *head, int value) {
 
     assert (head != nullptr);
     
-    if (head->error != NO_ERROR)
-        head->error = NO_ERROR;
-
     head->size_stack += 1;
 
+    verificator (head);
+/*
     if (head->size_stack > head->size_array) {
 
         head->error = STACK_OVERFLOW;
@@ -111,9 +133,9 @@ void push (my_stack *head, int value) {
         else head->size_array ++;
 
         head->arr = (int*)realloc (head->arr, sizeof (int) * head->size_array);
-    }
-
-    *(head->arr + head->size_stack - 1) = value;
+    } */
+    if (exit_cond != 1)
+        *(head->arr + head->size_stack - 1) = value;
 
     dump (head);
 
@@ -124,29 +146,26 @@ int pop (my_stack *head) {
 
     assert (head != nullptr);
 
-    if (head->error != NO_ERROR)
-        head->error = NO_ERROR;
+    --(head->size_stack);
+
+    verificator (head);
+
+    if (exit_cond != 1) {
+
+    int tmp = *(head->arr + head->size_stack);
+    *(head->arr + head->size_stack) = 0;
+    dump (head);
     
-    if (head->size_stack == 0)  {
-
-        head->error = POP_EMPTY_STACK;
-
-        dump (head);
-
-        return 0;
+    return tmp;
     }
-
-    int tmp = *(head->arr + head->size_stack - 1);
-    *(head->arr + head->size_stack - 1) = 0;
-    --head->size_stack;
-
+/*
     if (head->size_stack < head->size_array / MULTIPLIER) {   
 
             head->size_array /= MULTIPLIER;
             head->arr = (int*)realloc (head->arr, sizeof (int) * head->size_array);
     }
-    
+  */  
     dump (head);
     
-    return tmp;
+    return 0;
 }
