@@ -2,34 +2,57 @@
 
 extern size_t EXIT_COND;
 
+
+static long long rotl (unsigned n) {
+    unsigned d = 13;
+    n *= d;
+     return (n << d)|(n >> (32 - d));
+}
+
 long long hash_calc (my_stack *head) {
 
     assert (head != nullptr);
     
-    long long hash = 0;
+    long long hash = 0x1337;
 
     verificator (head);
 
-    hash += head->left_canary;
-    hash += head->error;
-    hash += head->size_array;
-    hash += head->size_stack;
+    hash = hash xor rotl (head->left_canary);
+    hash = hash xor rotl (head->error);
+    hash = hash xor rotl (head->size_array);
+    hash = hash xor rotl (head->size_stack);
     
     if (head->size_stack > 0 && head->arr != nullptr)
         for (int i = 0; i < head->size_stack; ++i)
-            hash += *(head->arr + i);
-    
-    for (int i = 0; i < strlen (head->stack_name); ++i)
-        hash += head->stack_name[i];
-    for (int i = 0; i < strlen (head->func_name); ++i)
-        hash += head->func_name[i];
-    for (int i = 0; i < strlen (head->file_name); ++i)
-        hash += head->file_name[i]; 
-    
-    hash += head->line;
-    hash += head->right_canary;
+            hash = hash xor rotl (*(head->arr + i));
 
-    return hash;    
+    int tmp = 0;
+
+    for (int i = 0; i < strlen (head->stack_name); ++i) 
+        tmp += head->stack_name[i];
+        hash = hash xor rotl (tmp);
+    
+    tmp = 0;
+    for (int i = 0; i < strlen (head->func_name); ++i)
+        tmp += head->func_name[i];
+        hash = hash xor rotl (tmp);
+    
+    tmp = 0;
+    for (int i = 0; i < strlen (head->file_name); ++i)
+        tmp += head->file_name[i];
+        hash = hash xor rotl (tmp); 
+    
+    hash = hash xor rotl (head->line);
+    hash = hash xor rotl (head->right_canary);
+
+    //avalanche
+    hash ^= (hash >> 16);
+    hash *= 0x85ebca6b;
+    hash ^= (hash >> 13);
+    hash *= 0xc2b2ae35;
+    hash ^= (hash >> 16);
+    
+    return hash % (16 * 16 * 16 * 16 * 16 * 16);    
 }
 
 
@@ -365,7 +388,7 @@ int pop (my_stack *head) {
     }
 
     dump (head);
-    
+
 #ifdef D_3
     head->hash = hash_calc (head);
 #endif

@@ -12,7 +12,7 @@ size_t EXIT_COND = 0;   //условие выхода из проги
 
 
 int main (void) {
-
+    
     FILE *out = fopen ("DUMP", "w");       //clearing the dump  file
     kotik(out)
     fclose (out);
@@ -24,14 +24,27 @@ int main (void) {
         constructor (head, SIZE_CONSTRUCTOR); 
     EX_VER
 
+
+
+printf ("%x\n",hash_calc(head));
 cur_inf (head $); push (head, 4); hash(head) EX_VER
+printf ("%x\n",hash_calc(head));
+
+
 cur_inf (head $); push (head, 4); hash(head) EX_VER
+printf ("%x\n",hash_calc(head));
 cur_inf (head $); push (head, 9); hash(head) EX_VER
+printf ("%x\n",hash_calc(head));
 //return 0;
 *(head->arr - sizeof (long long)) = 12;
+printf ("%x\n",hash_calc(head));
+return 0;
 hash_calc (head); cur_inf (head $); push (head, 9); EX_VER
+printf ("%x\n",hash_calc(head));
 printf ("mem");
 return 0;
+
+
         my_stack *wait = (my_stack*)calloc(1, sizeof (my_stack));
        cur_inf (wait $);
        get_stack_name (wait, wait->stack_name)  
