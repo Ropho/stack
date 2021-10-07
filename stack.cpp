@@ -3,15 +3,36 @@
 
 size_t EXIT_COND = 0;   //условие выхода из проги
 
-#ifndef NDEBUG_MODE
+#ifndef NDEBUG
 
     #define stk_name(name, a) {strcpy (a, #name); strcat (a, "\0");} 
     #define $ ,__LINE__,__PRETTY_FUNCTION__,__FILE__
     #define hash(name) if (name->hash != hash_calc(name)) EXIT_COND = 1;
     
+
+    #define create(name) {name = (my_stack*)calloc(1, sizeof (my_stack)); \
+       cur_inf (name $); stk_name(name, name->stack_name) constructor (name, SIZE_CONSTRUCTOR); EX_VER}
+
+#ifdef D_3
+    #define pushka(name, value) {cur_inf (name $); push (name, value);  hash(name) EX_VER}  
+    #define popka(name)  {cur_inf (name $);    pop (name); hash(name) EX_VER}
 #endif
 
-#define p printf("popa\n");
+#if defined D_2 || defined D_1 
+    #define pushka(name, value) {cur_inf (name $); push (name, value); EX_VER}  
+    #define popka(name)  {cur_inf (name $);    pop (name); EX_VER}
+#endif
+
+    #define dead(name) {cur_inf (name $); delete_stack (&name);}
+
+#endif
+
+#ifdef NDEBUG
+    #define create(name) {name = (my_stack*)calloc(1, sizeof (my_stack)); constructor (name, SIZE_CONSTRUCTOR);}
+    #define pushka(name, value) {push (name, value);}  
+    #define popka(name)  {pop (name);}
+    #define dead(name) {delete_stack (&name);}
+#endif
 
 int main (void) {
     
@@ -19,104 +40,61 @@ int main (void) {
     kotik(out)
     fclose (out);
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////// TYPE HERE /////////////////////////////////////////////////////
-#ifdef D_3
+////////////////////////////////////////// TYPE HERE //////////////////////////////////////////////////////
+// USE 4 FUNCTIONS
+// create (name) - create stack with given name
+// pushka (name) - push stack
+// popkaa (name) - pop  stack
+// dead (name)   - kill stack
 
-    my_stack *head = (my_stack*)calloc(1, sizeof (my_stack)); //create stack -_-
+#ifdef D_3          //mode with HASH
 
-    cur_inf (head $); stk_name(head, head->stack_name) constructor (head, SIZE_CONSTRUCTOR); EX_VER
-    
+    my_stack *head = nullptr;
 
-//return 0;
-//printf ("%x\n",hash_calc(head));
-cur_inf (head $); push (head, 4);  hash(head) EX_VER           //сделать ХЭШ
-//printf ("%x\n",hash_calc(head));
-//return 0;
+    create (head)
 
-cur_inf (head $); push (head, 4); hash(head) EX_VER       //крашит хэш       ХЭШ
-//printf ("%x\n",hash_calc(head));
-//printf ("kek");
-cur_inf (head $); push (head, 9); hash(head) EX_VER       //крашит хэш на реалоке 
-//printf ("%x\n",hash_calc(head));
-//return 0;
-//*(head->arr - sizeof (long long)) = 12;
-//printf ("%x\n",hash_calc(head));
-//return 0;
-cur_inf (head $); push (head, 9); hash(head) EX_VER
-//printf ("%x\n",hash_calc(head));
-cur_inf (head $); push (head, 9); hash(head) EX_VER
+    pushka (head, 4)
 
+    popka (head)
 
-cur_inf (head $);    pop (head); hash(head) EX_VER
-cur_inf (head $);    pop (head); hash(head) EX_VER
-cur_inf (head $);    pop (head); hash(head) EX_VER
-cur_inf (head $);    pop (head); EX_VER
-cur_inf (head $);    pop (head); EX_VER
-cur_inf (head $);    pop (head); EX_VER
-
-cur_inf (head $); delete_stack (&head);
-
-//printf ("mem");
-return 0;
-
-
-
-
-cur_inf (head $); pop (head); EX_VER
-cur_inf (head $); pop (head); EX_VER
-// $    pop (head); EX_VER
-// $    pop (head); EX_VER
-cur_inf (head $);    delete_stack (&head);
-
-    printf ("OK");
+    dead (head)
 
     return 0;
 #endif
 
-#if defined D_2 || defined D_1
+#if defined D_2 || defined D_1      //mode with canaries and verificator
 
-my_stack *head = (my_stack*)calloc(1, sizeof (my_stack)); //create stack -_-
+    my_stack *head = nullptr;
 
-    cur_inf (head $); stk_name(head, head->stack_name) constructor (head, SIZE_CONSTRUCTOR); EX_VER
-    
+    create (head)
 
-cur_inf (head $); push (head, 4); EX_VER
+    pushka (head, 4)
 
+    popka (head)
 
-cur_inf (head $); push (head, 4);  EX_VER      
+    dead (head)
 
-cur_inf (head $); push (head, 9);  EX_VER  
-
-cur_inf (head $); push (head, 9); EX_VER
-
-cur_inf (head $); push (head, 9); EX_VER
-
-cur_inf (head $);    pop (head); EX_VER
-cur_inf (head $);    pop (head); EX_VER
-cur_inf (head $);    pop (head); EX_VER
-cur_inf (head $);    pop (head); EX_VER
-cur_inf (head $);    pop (head); EX_VER
-cur_inf (head $);    pop (head); EX_VER
-
-cur_inf (head $);    delete_stack (&head);
-return 0;
-
+    return 0;
 #endif
 
-#ifdef NDEBUG
-    my_stack *head = (my_stack*)calloc(1, sizeof (my_stack));
-    constructor (head, SIZE_CONSTRUCTOR); 
-    push (head, 5);
-    push (head, 5);
-    push (head, 5);
-    push (head, 5);
-    printf ("%d\n", pop (head));
-    pop (head);
-    pop (head);
-    pop (head);
-    //pop (head);
-    delete_stack (&head);
-    printf ("haha");
+#ifdef NDEBUG       //mode without anything (easy death)
+
+    my_stack *head = nullptr;
+
+    create (head)
+
+    pushka (head, 4)
+    
+    popka (head)
+
+    popka (head)
+
+    popka (head)
+
+    pushka (head,1)
+
+    dead (head)
+
     return 0;
 #endif    
 }

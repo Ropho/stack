@@ -2,14 +2,14 @@
 
 extern size_t EXIT_COND;
 
+#ifdef D_3
 
-static long long rotl (unsigned n) {
+static long long rotl (long long n) {
     unsigned d = 13;
     n *= d;
      return (n << d)|(n >> (32 - d));
 }
 
-#ifdef D_3
 long long hash_calc (my_stack *head) {
 
     assert (head != nullptr);
@@ -23,6 +23,11 @@ long long hash_calc (my_stack *head) {
     hash ^= rotl (head->size_array);
     hash ^= rotl (head->size_stack);
     
+    if (head->arr != nullptr) {
+        hash ^= *((long long*)(head->arr - sizeof (long long) / sizeof (int)));
+        hash ^= *((long long*)(head->arr + head->size_array));
+    }
+
     if (head->size_stack > 0 && head->arr != nullptr)
         for (int i = 0; i < head->size_stack; ++i)
             hash ^= rotl (*(head->arr + i));

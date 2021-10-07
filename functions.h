@@ -1,10 +1,10 @@
 #ifndef FUNCTIONS_H_INCLUDED
 #define FUNCTIONS_H_INCLUDED
 
-//#define NDEBUG
+#define NDEBUG
 //#define D_1
 //#define D_2                   //uslovnaya compilyatsya
-#define D_3
+//#define D_3
 
 
 #include "stdio.h"
@@ -32,7 +32,7 @@
 #endif
 
 
-const int SIZE_CONSTRUCTOR = 0;
+const int SIZE_CONSTRUCTOR = 2;
 const size_t MULTIPLIER = 2;
 const size_t DIVISOR = 3;
 #define MUSOR 666
