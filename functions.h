@@ -4,7 +4,7 @@
 #define NDEBUG
 //#define D_1
 //#define D_2                   //uslovnaya compilyatsya
-//#define D_3
+#define D_3
 
 
 #include "stdio.h"
