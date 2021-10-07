@@ -1,7 +1,7 @@
 #ifndef FUNCTIONS_H_INCLUDED
 #define FUNCTIONS_H_INCLUDED
 
-#define NDEBUG
+//#define NDEBUG
 //#define D_1
 //#define D_2                   //uslovnaya compilyatsya
 #define D_3
