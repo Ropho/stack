@@ -1,6 +1,12 @@
 #ifndef FUNCTIONS_H_INCLUDED
 #define FUNCTIONS_H_INCLUDED
 
+//#define NDEBUG
+//#define D_1
+//#define D_2                   //uslovnaya compilyatsya
+#define D_3
+
+
 #include "stdio.h"
 #include "malloc.h"
 #include "assert.h"
@@ -17,29 +23,20 @@
                 　＼二つ                \n\n");
 
 
-//#define NDEBUG_MODE
-//#define D_1
-//#define D_2                   //uslovnaya compilyatsya
-#define D_3
+#ifndef NDEBUG
 
-
-#ifndef NDEBUG_MODE
-
-
-#define EX_VER {if (EXIT_COND) {printf ("u've been crashed"); return 0;}}
+    #define EX_VER {if (EXIT_COND) {printf ("u've been crashed"); return 0;}}
  
-
-#define alive 0x11EDEAD
-
+    #define alive 0x11EDEAD
 
 #endif
 
 
-const int SIZE_CONSTRUCTOR = 10;
+const int SIZE_CONSTRUCTOR = 0;
 const size_t MULTIPLIER = 2;
 const size_t DIVISOR = 3;
-
 #define MUSOR 666
+
 
 enum ERRORS {
 
@@ -53,39 +50,36 @@ enum ERRORS {
 
 typedef struct my_stack {
 
-    #if defined D_2 || defined D_3
+#if defined D_2 || defined D_3
     long long left_canary;
-    #endif
+#endif
 
-    #if defined D_1 || defined D_2 || defined D_3
-    int    error;
-    #endif
-
-    size_t size_array;
+    int size_array;
     int    size_stack;
     int   *arr;
 
-    #if defined D_1 || defined D_2 || defined D_3
+#ifndef NDEBUG
+    int error;
     char stack_name[10];
     char func_name[10];
     char file_name[20];
     int  line;
-    #endif
+#endif
 
-    #if defined D_2 || defined D_3
+#if defined D_2 || defined D_3
     long long right_canary;
-    #endif
+#endif
 
-    #ifdef D_3
+#ifdef D_3
     long long hash;
-    #endif
+#endif
 } my_stack;
 
 
 
 void cur_inf (my_stack *head, const int line, const char *func, const char *file);
 
-void constructor (my_stack *head, size_t size_array);
+void constructor (my_stack *head, int size_array);
 
 void delete_stack (my_stack **head);
 

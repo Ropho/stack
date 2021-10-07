@@ -9,6 +9,7 @@ static long long rotl (unsigned n) {
      return (n << d)|(n >> (32 - d));
 }
 
+#ifdef D_3
 long long hash_calc (my_stack *head) {
 
     assert (head != nullptr);
@@ -17,33 +18,33 @@ long long hash_calc (my_stack *head) {
 
     verificator (head);
 
-    hash = hash xor rotl (head->left_canary);
-    hash = hash xor rotl (head->error);
-    hash = hash xor rotl (head->size_array);
-    hash = hash xor rotl (head->size_stack);
+    hash ^= rotl (head->left_canary);
+    hash ^= rotl (head->error);
+    hash ^= rotl (head->size_array);
+    hash ^= rotl (head->size_stack);
     
     if (head->size_stack > 0 && head->arr != nullptr)
         for (int i = 0; i < head->size_stack; ++i)
-            hash = hash xor rotl (*(head->arr + i));
+            hash ^= rotl (*(head->arr + i));
 
     int tmp = 0;
 
     for (int i = 0; i < strlen (head->stack_name); ++i) 
         tmp += head->stack_name[i];
-        hash = hash xor rotl (tmp);
+        hash ^= rotl (tmp);
     
     tmp = 0;
     for (int i = 0; i < strlen (head->func_name); ++i)
         tmp += head->func_name[i];
-        hash = hash xor rotl (tmp);
+        hash ^= rotl (tmp);
     
     tmp = 0;
     for (int i = 0; i < strlen (head->file_name); ++i)
         tmp += head->file_name[i];
-        hash = hash xor rotl (tmp); 
+        hash ^= rotl (tmp); 
     
-    hash = hash xor rotl (head->line);
-    hash = hash xor rotl (head->right_canary);
+    hash ^= rotl (head->line);
+    hash ^= rotl (head->right_canary);
 
     //avalanche
     hash ^= (hash >> 16);
@@ -54,11 +55,11 @@ long long hash_calc (my_stack *head) {
     
     return hash % (16 * 16 * 16 * 16 * 16 * 16);    
 }
+#endif
 
+#ifndef NDEBUG
 
-#ifndef NDEBUG_MODE
-
-static void dump (my_stack *head) {             
+static void dump (my_stack *head) {
 
     assert (head != nullptr);
 
@@ -92,12 +93,12 @@ static void dump (my_stack *head) {
 
 
     if (head->size_stack == 0 && head->size_array == SIZE_CONSTRUCTOR) {
-        if (head->size_array > 0 && *(head->arr) != MUSOR)
+        if ((head->size_array > 0 && *(head->arr) != MUSOR) || head->arr == nullptr || head->size_array == 0)
             fprintf (out, "Stack created\n\n");
         else 
             fprintf (out, "EMPTY STACK\n\n");
     }
-    else if (head->arr == nullptr && head->size_stack == 0 && head->size_array == 0) {
+    else if (head->arr == nullptr && head->size_stack == MUSOR && head->size_array == MUSOR) {
         
         fprintf (out, "Stack DEcreated\n\n");
     }
@@ -113,7 +114,7 @@ static void dump (my_stack *head) {
 
         fprintf (out,"size = %d\ncapacity = %d\n", head->size_stack, head->size_array);
 
-        if (head->arr != nullptr && (*((long long*)(head->arr - sizeof (long long))) == alive))
+        if (head->arr != nullptr && (*((long long*)(head->arr - sizeof (long long) / sizeof (int))) == alive))
             fprintf (out, "left canary in stack alive :)\n");
         else
             fprintf (out, "left canary in stack dead :(\n");
@@ -136,6 +137,7 @@ static void dump (my_stack *head) {
         fprintf (out,"size = %d\ncapacity = %d\n", head->size_stack, head->size_array);
         for (int i = 0; i < head->size_stack; ++i)
         fprintf (out, "\t[%d] = %d\n", i, *(head->arr + i));
+        fprintf (out, "}\n\n");
 #endif
     }
     
@@ -159,7 +161,7 @@ static void dump (my_stack *head) {
 #endif
 
 
-#ifndef NDEBUG_MODE
+#ifndef NDEBUG
 
 static void verificator (my_stack *head) {
 
@@ -196,10 +198,10 @@ static void verificator (my_stack *head) {
     }
     
     else if (head->arr != nullptr)
-        if (*((long long*)(head->arr - sizeof (long long))) != alive || *((long long*)(head->arr + head->size_array)) != alive) {
-        head->error = NAS_VZLOMALI;
-        EXIT_COND = 1;
-        return;
+        if (*((long long*)(head->arr - sizeof (long long) / sizeof (int))) != alive || *((long long*)(head->arr + head->size_array)) != alive) {
+            head->error = NAS_VZLOMALI;
+            EXIT_COND = 1;
+            return;
     }
 #endif
 }
@@ -222,59 +224,76 @@ void cur_inf (my_stack *head, const int line, const char *func, const char *file
 
 #endif
 
-void constructor (my_stack *head, size_t size_array) {
+void constructor (my_stack *head, int size_array) {
 
     assert (head != nullptr);
 
     head->size_stack   = 0;
     head->size_array   = size_array;
     
-    #ifndef NDEBUG_MODE
+#ifndef NDEBUG
     head->error        = NO_ERROR;
-    #endif
+#endif
 
     if (head->size_array > 0) {
 
-        #if defined D_2 || defined D_3
-        head->arr          = (int*)calloc(head->size_array + 4, sizeof (int)); //with 2 canaries
-        *((long long*)head->arr) = alive; 
-        head->arr = head->arr + sizeof (long long);
-        *(long long*)(head->arr + head->size_array) = alive;
+#if defined D_2 || defined D_3
+        head->arr          = (int*)calloc(head->size_array * sizeof (int) + 2 * sizeof (long long), sizeof (char)); //with 2 canaries
 
-        #else
+        assert (head->arr != nullptr);  //verificator
+
+        *((long long*)head->arr) = alive; 
+
+        head->arr = head->arr + sizeof (long long) / sizeof (int);
+
+        *((long long*)(head->arr + head->size_array)) = alive;
+
+
+#else
             head->arr          = (int*)calloc(head->size_array, sizeof (int));
 
-        #endif
+#endif
     }
-    else 
+    else if (head->size_array == 0) { 
+        
+#if defined D_2 || defined D_3
+        head->arr          = (int*)calloc(2 * sizeof (long long), sizeof (char)); //2 canaries
+        *((long long*)head->arr) = alive; 
+        head->arr = head->arr + sizeof (long long) / sizeof (int);
+        *(long long*)(head->arr) = alive;
+
+#else
+        head->arr = nullptr;
+#endif
+    }
+    else if (head->size_array < 0)
         head->arr = nullptr;
 
-    #if defined D_2 || defined D_3
+#if defined D_2 || defined D_3
     head->left_canary  = alive;
     head->right_canary = alive;
-    #endif
+#endif
 
-    #ifdef D_3
+#ifdef D_3
     head->hash = 0;
-    #endif
+#endif
 
-    #ifndef NDEBUG_MODE
+#ifndef NDEBUG
     verificator (head);
-
     dump (head);
-    #endif
+#endif
 }
 
 
 void delete_stack (my_stack **head) {
 
     assert (*head != nullptr);
-    
+   
     destructor (*head);
 
-    #ifndef NDEBUG_MODE
+#ifndef NDEBUG
     dump (*head);
-    #endif
+#endif
     free(*head);
     *head = nullptr;
 
@@ -283,29 +302,26 @@ void delete_stack (my_stack **head) {
 static void destructor (my_stack *head) {
 
     assert (head != nullptr);
+#if defined D_2 || defined D_3
+    free (head->arr - sizeof (long long) / sizeof (int));
 
-    free((head)->arr);
+    head->left_canary = MUSOR;
+    head->right_canary = MUSOR;
+#else
+    free (head->arr);
+#endif
 
     (head)->arr = nullptr;
-    (head)->size_stack = 0;
-    (head)->size_array = 0;
+    (head)->size_stack = MUSOR;
+    (head)->size_array = MUSOR;
 
-    #if defined D_2 || defined D_3
-    head->left_canary = alive;
-    head->right_canary = alive;
-    #endif
+#ifdef D_3
+    head->hash = MUSOR;
+#endif
 
-    #ifdef D_3
-    head->hash = 0;
-    #endif
-
-    #ifndef NDEBUG_MODE
-    head->error = NO_ERROR;
-    strcpy (head->file_name, "");
-    strcpy (head->func_name, "");
-    strcpy (head->stack_name, "");
-    head->line = 0;
-    #endif
+#ifndef NDEBUG
+    head->error = MUSOR;
+#endif
 }
 
 void push (my_stack *head, int value) {
@@ -314,21 +330,36 @@ void push (my_stack *head, int value) {
     
     head->size_stack += 1;
 
-    #ifndef NDEBUG_MODE
+#if defined D_2 || defined D_3
     verificator (head);
 
     if (head->error == STACK_OVERFLOW) {
 
+        int old_size = head->size_array;
+
         if (head->size_array != 0)
              head->size_array = head->size_array * MULTIPLIER;
         else head->size_array ++;
         
-        if (head->size_array > 0)
-            head->arr = (int*) realloc (head->arr, sizeof (int) * head->size_array);
-        assert (head->arr != nullptr);
+        if (head->size_array > 0) {
+            long long tmp = *(long long*)(head->arr + old_size);
+            *(long long*)(head->arr + old_size) = 0;
+            head->arr = head->arr - sizeof (long long) / sizeof (int);
+            head->arr = (int*) realloc (head->arr, sizeof (int) * head->size_array + 2 * sizeof (long long));
+            assert (head->arr != nullptr);
+            head->arr = head->arr + sizeof (long long) / sizeof (int);
+
+            *(long long*)(head->arr + head->size_array) = tmp;
+           
+            //printf ("%x\n", *(long long*)(head->arr + head->size_array));
+        }
     } 
-    #else
-        if (head->size_array > head->size_stack) {
+#endif
+
+#ifdef D_1
+        verificator (head);
+
+        if (head->error == STACK_OVERFLOW) {
 
         if (head->size_array != 0)
              head->size_array = head->size_array * MULTIPLIER;
@@ -336,9 +367,24 @@ void push (my_stack *head, int value) {
         
         if (head->size_array > 0)
             head->arr = (int*) realloc (head->arr, sizeof (int) * head->size_array);
+
         assert (head->arr != nullptr);
     } 
-    #endif
+#endif
+
+#ifdef NDEBUG
+        if (head->size_stack > head->size_array) {
+
+        if (head->size_array != 0)
+             head->size_array = head->size_array * MULTIPLIER;
+        else head->size_array ++;
+        
+        if (head->size_array > 0)
+            head->arr = (int*) realloc (head->arr, sizeof (int) * head->size_array);
+            
+        assert (head->arr != nullptr);
+    } 
+#endif
 
 
     if (EXIT_COND != 1)
@@ -346,27 +392,24 @@ void push (my_stack *head, int value) {
 
     dump (head);
 
+#ifndef NDEBUG
+    head->error = NO_ERROR;
+#endif
+
 #ifdef D_3
     head->hash = hash_calc (head);
 #endif
 
-#ifndef NDEBUG_MODE
-    head->error = NO_ERROR;
-#endif
 }
 
 int pop (my_stack *head) {
 
     assert (head != nullptr);
-    
-    #ifndef NDEBUG_MODE
-    verificator (head);
-    #endif
 
     --(head->size_stack);
 
         
-    #ifndef NDEBUG_MODE
+    #ifndef NDEBUG
     verificator (head);
     #endif
 
@@ -375,11 +418,26 @@ int pop (my_stack *head) {
         int tmp = *(head->arr + head->size_stack);
         *(head->arr + head->size_stack) = MUSOR;
     
-        if (head->size_stack < head->size_array / DIVISOR) {   
+        if (head->size_stack < head->size_array / DIVISOR) { 
+#if defined D_2 || defined D_3  
+            int old_size = head->size_array;
 
-            head->size_array /= DIVISOR;
-            head->arr = (int*)realloc (head->arr, sizeof (int) * head->size_array);
+             head->size_array = head->size_array / DIVISOR;
+        
+            long long tmp = *(long long*)(head->arr + old_size);
+            *(long long*)(head->arr + old_size) = 0;
+            head->arr = head->arr - sizeof (long long) / sizeof (int);
+            head->arr = (int*) realloc (head->arr, sizeof (int) * head->size_array + 2 * sizeof (long long));
+            assert (head->arr != nullptr);
+            head->arr = head->arr + sizeof (long long) / sizeof (int);
+
+            *(long long*)(head->arr + head->size_array) = tmp;
+#else
+            head->size_array = head->size_array / DIVISOR;
+            head->arr = (int*) realloc (head->arr, sizeof (int) * head->size_array);
+#endif
         }
+
         dump (head);
 #ifdef D_3
          head->hash = hash_calc (head);

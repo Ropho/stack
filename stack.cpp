@@ -5,11 +5,13 @@ size_t EXIT_COND = 0;   //условие выхода из проги
 
 #ifndef NDEBUG_MODE
 
-#define get_stack_name(name, a) {strcpy (a, #name); strcat (a, "\0");} 
-#define $ ,__LINE__,__PRETTY_FUNCTION__,__FILE__
-#define hash(name) if (name->hash != hash_calc(head)) EXIT_COND = 1;
+    #define stk_name(name, a) {strcpy (a, #name); strcat (a, "\0");} 
+    #define $ ,__LINE__,__PRETTY_FUNCTION__,__FILE__
+    #define hash(name) if (name->hash != hash_calc(name)) EXIT_COND = 1;
+    
 #endif
 
+#define p printf("popa\n");
 
 int main (void) {
     
@@ -18,40 +20,45 @@ int main (void) {
     fclose (out);
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////// TYPE HERE /////////////////////////////////////////////////////
-#ifndef NDEBUG_MODE
-    my_stack *head = (my_stack*)calloc(1, sizeof (my_stack));   //create stack -_-
-    cur_inf (head $); get_stack_name(head, head->stack_name)  
-        constructor (head, SIZE_CONSTRUCTOR); 
-    EX_VER
+#ifdef D_3
 
+    my_stack *head = (my_stack*)calloc(1, sizeof (my_stack)); //create stack -_-
 
+    cur_inf (head $); stk_name(head, head->stack_name) constructor (head, SIZE_CONSTRUCTOR); EX_VER
+    
 
-printf ("%x\n",hash_calc(head));
-cur_inf (head $); push (head, 4); hash(head) EX_VER
-printf ("%x\n",hash_calc(head));
-
-
-cur_inf (head $); push (head, 4); hash(head) EX_VER
-printf ("%x\n",hash_calc(head));
-cur_inf (head $); push (head, 9); hash(head) EX_VER
-printf ("%x\n",hash_calc(head));
 //return 0;
-*(head->arr - sizeof (long long)) = 12;
-printf ("%x\n",hash_calc(head));
+//printf ("%x\n",hash_calc(head));
+cur_inf (head $); push (head, 4);  hash(head) EX_VER           //сделать ХЭШ
+//printf ("%x\n",hash_calc(head));
+//return 0;
+
+cur_inf (head $); push (head, 4); hash(head) EX_VER       //крашит хэш       ХЭШ
+//printf ("%x\n",hash_calc(head));
+//printf ("kek");
+cur_inf (head $); push (head, 9); hash(head) EX_VER       //крашит хэш на реалоке 
+//printf ("%x\n",hash_calc(head));
+//return 0;
+//*(head->arr - sizeof (long long)) = 12;
+//printf ("%x\n",hash_calc(head));
+//return 0;
+cur_inf (head $); push (head, 9); hash(head) EX_VER
+//printf ("%x\n",hash_calc(head));
+cur_inf (head $); push (head, 9); hash(head) EX_VER
+
+
+cur_inf (head $);    pop (head); hash(head) EX_VER
+cur_inf (head $);    pop (head); hash(head) EX_VER
+cur_inf (head $);    pop (head); hash(head) EX_VER
+cur_inf (head $);    pop (head); EX_VER
+cur_inf (head $);    pop (head); EX_VER
+cur_inf (head $);    pop (head); EX_VER
+
+cur_inf (head $); delete_stack (&head);
+
+//printf ("mem");
 return 0;
-hash_calc (head); cur_inf (head $); push (head, 9); EX_VER
-printf ("%x\n",hash_calc(head));
-printf ("mem");
-return 0;
 
-
-        my_stack *wait = (my_stack*)calloc(1, sizeof (my_stack));
-       cur_inf (wait $);
-       get_stack_name (wait, wait->stack_name)  
-        constructor (wait, SIZE_CONSTRUCTOR); 
-       EX_VER
-
-cur_inf (wait $); pop (wait); EX_VER
 
 
 
@@ -64,19 +71,50 @@ cur_inf (head $);    delete_stack (&head);
     printf ("OK");
 
     return 0;
+#endif
 
-#else
+#if defined D_2 || defined D_1
+
+my_stack *head = (my_stack*)calloc(1, sizeof (my_stack)); //create stack -_-
+
+    cur_inf (head $); stk_name(head, head->stack_name) constructor (head, SIZE_CONSTRUCTOR); EX_VER
+    
+
+cur_inf (head $); push (head, 4); EX_VER
+
+
+cur_inf (head $); push (head, 4);  EX_VER      
+
+cur_inf (head $); push (head, 9);  EX_VER  
+
+cur_inf (head $); push (head, 9); EX_VER
+
+cur_inf (head $); push (head, 9); EX_VER
+
+cur_inf (head $);    pop (head); EX_VER
+cur_inf (head $);    pop (head); EX_VER
+cur_inf (head $);    pop (head); EX_VER
+cur_inf (head $);    pop (head); EX_VER
+cur_inf (head $);    pop (head); EX_VER
+cur_inf (head $);    pop (head); EX_VER
+
+cur_inf (head $);    delete_stack (&head);
+return 0;
+
+#endif
+
+#ifdef NDEBUG
     my_stack *head = (my_stack*)calloc(1, sizeof (my_stack));
     constructor (head, SIZE_CONSTRUCTOR); 
     push (head, 5);
     push (head, 5);
     push (head, 5);
     push (head, 5);
+    printf ("%d\n", pop (head));
     pop (head);
     pop (head);
     pop (head);
-    pop (head);
-    pop (head);
+    //pop (head);
     delete_stack (&head);
     printf ("haha");
     return 0;
