@@ -27,7 +27,7 @@
 
     #define EX_VER {if (EXIT_COND) {printf ("u've been crashed"); return 0;}}
  
-    #define alive 0x11EDEAD
+    #define alive 0xDEAD
 
 #endif
 
@@ -66,12 +66,13 @@ typedef struct my_stack {
     int  line;
 #endif
 
-#if defined D_2 || defined D_3
-    long long right_canary;
-#endif
 
 #ifdef D_3
     long long hash;
+#endif
+
+#if defined D_2 || defined D_3
+    long long right_canary;
 #endif
 } my_stack;
 
