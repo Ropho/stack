@@ -103,7 +103,7 @@ static void dump (my_stack *head) {
         else 
             fprintf (out, "EMPTY STACK\n\n");
     }
-    else if (head->arr == nullptr && head->size_stack == MUSOR && head->size_array == MUSOR) {
+    else if (head->arr == nullptr && head->size_array == MUSOR) {
         
         fprintf (out, "Stack DEcreated\n\n");
     }
@@ -233,7 +233,6 @@ void constructor (my_stack *head, int size_array) {
 
     assert (head != nullptr);
 
-    head->size_stack   = 0;
     head->size_array   = size_array;
     
 #ifndef NDEBUG
@@ -299,8 +298,6 @@ void delete_stack (my_stack **head) {
 #ifndef NDEBUG
     dump (*head);
 #endif
-    free(*head);
-    *head = nullptr;
 
 }
 
@@ -308,16 +305,10 @@ static void destructor (my_stack *head) {
 
     assert (head != nullptr);
 #if defined D_2 || defined D_3
-    free (head->arr - sizeof (long long) / sizeof (int));
-
     head->left_canary = MUSOR;
     head->right_canary = MUSOR;
-#else
-    free (head->arr);
 #endif
-
     (head)->arr = nullptr;
-    (head)->size_stack = MUSOR;
     (head)->size_array = MUSOR;
 
 #ifdef D_3
@@ -342,23 +333,19 @@ void push (my_stack *head, int value) {
 
         int old_size = head->size_array;
 
-        if (head->size_array != 0)
              head->size_array = head->size_array * MULTIPLIER;
-        else head->size_array ++;
         
-        if (head->size_array > 0) {
             long long tmp = *(head->arr + old_size);
             *(head->arr + old_size) = 0;
             head->arr = head->arr - sizeof (long long) / sizeof (int);
             head->arr = (int*) realloc (head->arr, sizeof (int) * head->size_array + 2 * sizeof (long long));
-            assert (head->arr != nullptr);
+            //assert (head->arr != nullptr);
             head->arr = head->arr + sizeof (long long) / sizeof (int);
 
-            *(head->arr + head->size_array) = tmp;
-           
-            //printf ("%x\n", *(long long*)(head->arr + head->size_array));
-        }
+            *(long long*)(head->arr + head->size_array) = tmp;
+
     } 
+    //printf ("%d", head->error);
 #endif
 
 #ifdef D_1
@@ -433,7 +420,7 @@ int pop (my_stack *head) {
             *(head->arr + old_size) = 0;
             head->arr = head->arr - sizeof (long long) / sizeof (int);
             head->arr = (int*) realloc (head->arr, sizeof (int) * head->size_array + 2 * sizeof (long long));
-            assert (head->arr != nullptr);
+            
             head->arr = head->arr + sizeof (long long) / sizeof (int);
 
             *(head->arr + head->size_array) = tmp;
@@ -455,5 +442,5 @@ int pop (my_stack *head) {
 #ifdef D_3
     head->hash = hash_calc (head);
 #endif
-    return 666;
+    return MUSOR;
 }

@@ -56,14 +56,25 @@ int main (void) {
 
     create (head)
 
-    pushka (head, 4)
+    pushka (head, MUSOR)
+        pushka (head, MUSOR)
+           popka (head)
+             popka (head)
+             
+            pushka (head, 4)
+                pushka (head, 4)
+                    pushka (head, 4)
+
 
     printf ("i hate this world"); check (head)    
 
-    popka (head)
-
+    //popka (head)
+        //head->arr = nullptr;
+         // popka (head)
+           pushka (head, 4) 
     dead (head)
 
+        //create (head
     return 0;
 #endif
 ///////////////////////////////////////////////TYPE ONLY IN D_3 mode///////////////////////////////////////
