@@ -178,18 +178,16 @@ static void verificator (my_stack *head) {
         EXIT_COND = 1;
         return;
     }
-
-    else if (head->size_stack < 0) {
-
-        head->error = STACK_UNDERFLOW;
-        EXIT_COND = 1;
-        return;
-    }
-
     else if (head->size_stack > head->size_array) {
 
         head->error = STACK_OVERFLOW;
         EXIT_COND = 0;
+        return;
+    }
+    else if (head->size_stack < 0) {
+
+        head->error = STACK_UNDERFLOW;
+        EXIT_COND = 1;
         return;
     }
     

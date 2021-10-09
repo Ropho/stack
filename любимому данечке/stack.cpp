@@ -85,7 +85,7 @@ int main (void) {
     my_stack *head = nullptr;
 
     create (head)
-
+    
     pushka (head, 4)
 
     popka (head)
